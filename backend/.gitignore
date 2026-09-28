@@ -1,0 +1,23 @@
+# venv
+.venv/
+venv/
+
+# python cache / build
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# secrets - kabhi commit mat karna
+.env
+!.env.example
+
+# uv cache
+.uv/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
