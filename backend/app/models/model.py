@@ -13,6 +13,8 @@ class Endpoint(Base):
     method = Column(String(10), default="GET")
     interval_seconds = Column(Integer, default=300)
     is_active = Column(Boolean, default=True)
+    consecutive_failures = Column(Integer, default=0)
+    alert_sent = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 

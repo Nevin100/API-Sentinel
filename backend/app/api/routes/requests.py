@@ -4,9 +4,9 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.model import RequestLog
 from app.services.sender import send_request
+from app.services.metrics import REQUESTS_SENT
 
 router = APIRouter()
-
 
 class SendBody(BaseModel):
     method: str = "GET"
@@ -17,6 +17,8 @@ class SendBody(BaseModel):
 
 @router.post("/send")
 def send(payload: SendBody, db: Session = Depends(get_db)):
+    """Postman-lite: send a request, log it, return the response."""
+    REQUESTS_SENT.inc()
     result = send_request(payload.method, payload.url, payload.headers, payload.body)
     db.add(RequestLog(
         method=payload.method,

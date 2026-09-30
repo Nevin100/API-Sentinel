@@ -1,8 +1,10 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.responses import PlainTextResponse
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 from app.core.config import settings
 from app.db.session import Base, engine
-from app.api.routes import endpoints, requests, inspect, collections
+from app.api.routes import endpoints, requests, inspect, collections, stats
 from app.worker.scheduler import start_scheduler
 
 Base.metadata.create_all(bind=engine)
@@ -19,7 +21,13 @@ app.include_router(endpoints.router, prefix="/api/endpoints", tags=["endpoints"]
 app.include_router(requests.router, prefix="/api/requests", tags=["requests"])
 app.include_router(inspect.router, prefix="/api/inspect", tags=["inspect"])
 app.include_router(collections.router, prefix="/api", tags=["collections"])
+app.include_router(stats.router, prefix="/api/stats", tags=["stats"])
 
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+
+@app.get("/metrics")
+def metrics():
+    return PlainTextResponse(generate_latest(), media_type=CONTENT_TYPE_LATEST)

@@ -6,6 +6,7 @@ from app.db.session import get_db
 from app.models.model import Collection, SavedRequest, Environment, RequestLog
 from app.services.sender import send_request
 from app.services.variables import load_variables, substitute, substitute_headers
+from app.services.metrics import REQUESTS_SENT
 
 router = APIRouter()
 
@@ -79,6 +80,7 @@ def send_saved(request_id: int, db: Session = Depends(get_db)):
     url = substitute(r.url, variables)
     headers = substitute_headers(json.loads(r.headers or "{}"), variables)
     body = substitute(r.body, variables)
+    REQUESTS_SENT.inc()
     result = send_request(r.method, url, headers, body)
     db.add(RequestLog(
         method=r.method,
