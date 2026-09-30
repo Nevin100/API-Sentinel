@@ -6,6 +6,7 @@ from app.core.config import settings
 from app.db.session import Base, engine
 from app.api.routes import endpoints, requests, inspect, collections, stats
 from app.worker.scheduler import start_scheduler
+from fastapi.middleware.cors import CORSMiddleware
 
 Base.metadata.create_all(bind=engine)
 
@@ -16,6 +17,14 @@ async def lifespan(app: FastAPI):
     sched.shutdown()
 
 app = FastAPI(title="API Sentinel", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(endpoints.router, prefix="/api/endpoints", tags=["endpoints"])
 app.include_router(requests.router, prefix="/api/requests", tags=["requests"])
