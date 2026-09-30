@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from app.db.session import get_db
@@ -46,3 +46,23 @@ def results(endpoint_id: int, limit: int = 100, db: Session = Depends(get_db)):
          "ok": r.ok, "checked_at": r.checked_at}
         for r in rows
     ]
+
+@router.patch("/{endpoint_id}/toggle")
+def toggle_endpoint(endpoint_id: int, db: Session = Depends(get_db)):
+    ep = db.query(Endpoint).filter(Endpoint.id == endpoint_id).first()
+    if not ep:
+        raise HTTPException(404, "endpoint not found")
+    ep.is_active = not ep.is_active
+    db.commit()
+    return {"id": ep.id, "is_active": ep.is_active}
+
+
+@router.delete("/{endpoint_id}")
+def delete_endpoint(endpoint_id: int, db: Session = Depends(get_db)):
+    ep = db.query(Endpoint).filter(Endpoint.id == endpoint_id).first()
+    if not ep:
+        raise HTTPException(404, "endpoint not found")
+    db.query(CheckResult).filter(CheckResult.endpoint_id == endpoint_id).delete()
+    db.delete(ep)
+    db.commit()
+    return {"deleted": endpoint_id}
