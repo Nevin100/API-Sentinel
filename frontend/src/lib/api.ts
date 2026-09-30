@@ -83,4 +83,13 @@ export const api = {
     dailyUptime: (id: number, days = 30) =>
         req<any[]>(`/api/stats/endpoints/${id}/daily?days=${days}`),
     failures: (limit = 20) => req<any[]>(`/api/stats/failures?limit=${limit}`),
+
+    system: () => req<SystemStats>("/api/system/stats"),
+
+};
+
+export type SystemStats = {
+  cpu_percent: number; cpu_count: number; cpu_per_core: number[];
+  ram_percent: number; ram_used_gb: number; ram_total_gb: number;
+  disk_percent: number; disk_used_gb: number; disk_total_gb: number;
 };

@@ -6,6 +6,7 @@ import { api } from "../lib/api";
 import EndpointCard from "../components/EndpointCard";
 import { Card } from "../components/ui";
 import Link from "next/link";
+import { SystemStatsPanel } from "../components/SystemStats";
 
 export default function Dashboard() {
   const [summary, setSummary] = useState<any[]>([]);
@@ -51,6 +52,8 @@ export default function Dashboard() {
           </div>
         </Card>
       </div>
+
+      <SystemStatsPanel />
 
       <div>
         <h2 className="text-lg font-semibold mb-3">Endpoints</h2>
