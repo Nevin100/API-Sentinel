@@ -8,3 +8,6 @@ apscheduler==3.10.*
 redis==5.*
 prometheus-client==0.21.*
 psutil
+pyjwt==2.*
+pwdlib==0.*
+pwdlib[argon2]

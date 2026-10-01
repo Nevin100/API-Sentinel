@@ -1,13 +1,12 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.responses import PlainTextResponse
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 from app.core.config import settings
 from app.db.session import Base, engine
-from app.api.routes import endpoints, requests, inspect, collections, stats
 from app.worker.scheduler import start_scheduler
-from app.api.routes import endpoints, requests, inspect, collections, stats, system
-
+from app.api.routes import endpoints, requests, inspect, collections, stats, system, auth
+from app.api.routes.auth import get_current_user
 from fastapi.middleware.cors import CORSMiddleware
 
 Base.metadata.create_all(bind=engine)
@@ -28,17 +27,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(endpoints.router, prefix="/api/endpoints", tags=["endpoints"])
-app.include_router(requests.router, prefix="/api/requests", tags=["requests"])
-app.include_router(inspect.router, prefix="/api/inspect", tags=["inspect"])
-app.include_router(collections.router, prefix="/api", tags=["collections"])
-app.include_router(stats.router, prefix="/api/stats", tags=["stats"])
-app.include_router(system.router, prefix="/api/system", tags=["system"])
+# Auth routes are public; everything under /api/* needs a Bearer token.
+app.include_router(auth.router, prefix="/auth", tags=["auth"])
+
+authed = [Depends(get_current_user)]
+app.include_router(endpoints.router, prefix="/api/endpoints", tags=["endpoints"], dependencies=authed)
+app.include_router(requests.router, prefix="/api/requests", tags=["requests"], dependencies=authed)
+app.include_router(inspect.router, prefix="/api/inspect", tags=["inspect"], dependencies=authed)
+app.include_router(collections.router, prefix="/api", tags=["collections"], dependencies=authed)
+app.include_router(stats.router, prefix="/api/stats", tags=["stats"], dependencies=authed)
+app.include_router(system.router, prefix="/api/system", tags=["system"], dependencies=authed)
 
 @app.get("/health")
 def health():
     return {"status": "ok"}
-
 
 @app.get("/metrics")
 def metrics():
