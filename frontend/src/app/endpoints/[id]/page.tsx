@@ -9,8 +9,10 @@ import { LatencyBars, Heatmap } from "../../../components/charts";
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div className="text-zinc-400 text-xs">{label}</div>
-      <div className="font-mono text-lg">{value}</div>
+      <div className="text-xs font-medium uppercase tracking-wider text-[#a8a29e]">
+        {label}
+      </div>
+      <div className="mono mt-1 text-xl">{value}</div>
     </div>
   );
 }
@@ -42,18 +44,23 @@ export default function EndpointDetail() {
     })();
   }, [eid]);
 
-  if (!stats) return <p className="text-zinc-500">Loading…</p>;
+  if (!stats)
+    return <p className="text-sm text-[#a8a29e]">Loading…</p>;
   const w = stats["24h"];
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <h1 className="text-2xl font-bold">{info?.name || `Endpoint #${eid}`}</h1>
-        <StatusBadge ok={stats.last_check?.ok} />
+      <div>
+        <div className="flex items-center gap-3">
+          <h1 className="font-display text-3xl">
+            {info?.name || `Endpoint #${eid}`}
+          </h1>
+          <StatusBadge ok={stats.last_check?.ok} />
+        </div>
+        <p className="mono mt-1 truncate text-sm text-[#a8a29e]">{info?.url}</p>
       </div>
-      <p className="text-zinc-500 text-sm -mt-4">{info?.url}</p>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <Card><Stat label="Uptime 24h" value={`${w.uptime_pct}%`} /></Card>
         <Card><Stat label="Uptime 7d" value={`${stats["7d"].uptime_pct}%`} /></Card>
         <Card><Stat label="p95 latency" value={w.latency_ms.p95 != null ? `${w.latency_ms.p95}ms` : "—"} /></Card>
@@ -61,12 +68,12 @@ export default function EndpointDetail() {
       </div>
 
       <Card>
-        <h3 className="font-semibold mb-3">Latency percentiles (24h)</h3>
+        <h3 className="mb-3 font-semibold">Latency percentiles (24h)</h3>
         <div className="grid grid-cols-5 gap-2 text-center">
           {["avg", "p50", "p95", "p99", "max"].map((k) => (
-            <div key={k} className="bg-zinc-800 rounded-lg p-2">
-              <div className="text-xs text-zinc-500">{k}</div>
-              <div className="font-mono">
+            <div key={k} className="rounded-lg bg-[#f5f0e8] p-2">
+              <div className="text-xs text-[#a8a29e]">{k}</div>
+              <div className="mono">
                 {w.latency_ms[k] != null ? `${w.latency_ms[k]}ms` : "—"}
               </div>
             </div>
@@ -75,29 +82,29 @@ export default function EndpointDetail() {
       </Card>
 
       <Card>
-        <h3 className="font-semibold mb-3">Recent checks</h3>
+        <h3 className="mb-3 font-semibold">Recent checks</h3>
         <LatencyBars results={results} />
       </Card>
 
       <Card>
-        <h3 className="font-semibold mb-3">Uptime heatmap (30d)</h3>
+        <h3 className="mb-3 font-semibold">Uptime heatmap (30d)</h3>
         <Heatmap days={daily} />
       </Card>
 
       <Card>
-        <h3 className="font-semibold mb-3">Check history</h3>
+        <h3 className="mb-3 font-semibold">Check history</h3>
         <div className="text-sm">
-          <div className="grid grid-cols-4 gap-2 text-zinc-500 text-xs pb-2 border-b border-zinc-800">
+          <div className="grid grid-cols-4 gap-2 border-b border-[#e7e0d5] pb-2 text-xs text-[#a8a29e]">
             <span>Time</span><span>Status</span><span>Latency</span><span>Error</span>
           </div>
           {results.slice(0, 15).map((r: any, i: number) => (
-            <div key={i} className="grid grid-cols-4 gap-2 py-1.5 border-b border-zinc-800/50">
-              <span className="text-zinc-400">{new Date(r.checked_at).toLocaleString()}</span>
-              <span className={r.ok ? "text-emerald-400" : "text-red-400"}>
+            <div key={i} className="grid grid-cols-4 gap-2 border-b border-[#f5f0e8] py-1.5 last:border-0">
+              <span className="text-[#78716c]">{new Date(r.checked_at).toLocaleString()}</span>
+              <span className={r.ok ? "font-medium text-[#047857]" : "font-medium text-[#b91c1c]"}>
                 {r.status_code ?? "ERR"}
               </span>
-              <span className="font-mono">{r.latency_ms?.toFixed(0)}ms</span>
-              <span className="text-zinc-500 truncate">{r.error ? String(r.error).slice(0, 60) : "—"}</span>
+              <span className="mono">{r.latency_ms?.toFixed(0)}ms</span>
+              <span className="truncate text-[#a8a29e]">{r.error ? String(r.error).slice(0, 60) : "—"}</span>
             </div>
           ))}
         </div>

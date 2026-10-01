@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -43,10 +43,16 @@ export default function EndpointsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Monitored endpoints</h1>
+      <div>
+        <p className="eyebrow mb-2">Monitoring</p>
+        <h1 className="font-display text-3xl">Endpoints</h1>
+        <p className="mt-1 text-sm text-[#78716c]">
+          Add a URL, Sentinel checks it on your schedule.
+        </p>
+      </div>
 
       <Card>
-        <div className="flex gap-2 flex-col sm:flex-row">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -57,25 +63,27 @@ export default function EndpointsPage() {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://api.example.com/health"
-            className={inputCls}
+            className={`${inputCls} mono`}
           />
-          <button onClick={create} className={btnCls + " shrink-0"}>
-            Add
+          <button onClick={create} className={`${btnCls} shrink-0`}>
+            Add endpoint
           </button>
         </div>
       </Card>
 
       <div className="space-y-2">
         {list.map((e: any) => (
-          <Card key={e.id} className="!p-3">
+          <Card key={e.id}>
             <div className="flex items-center justify-between gap-4">
-              <Link href={`/endpoints/${e.id}`} className="flex-1 min-w-0">
+              <Link href={`/endpoints/${e.id}`} className="min-w-0 flex-1">
                 <div className="font-medium hover:underline">{e.name}</div>
-                <div className="text-xs text-zinc-500 truncate">
+                <div className="mono truncate text-xs text-[#a8a29e]">
                   {e.method} {e.url}
                 </div>
               </Link>
-              <StatusBadge ok={e.is_active ? undefined : false} />
+              <span className={e.is_active ? "" : "opacity-50"}>
+                <StatusBadge ok={e.is_active ? undefined : false} />
+              </span>
               <button onClick={() => toggle(e.id)} className={btnGhost}>
                 {e.is_active ? "Pause" : "Resume"}
               </button>
@@ -86,7 +94,7 @@ export default function EndpointsPage() {
           </Card>
         ))}
         {list.length === 0 && (
-          <p className="text-zinc-500 text-sm">Abhi koi endpoint nahi hai.</p>
+          <p className="text-sm text-[#a8a29e]">Abhi koi endpoint nahi hai.</p>
         )}
       </div>
     </div>

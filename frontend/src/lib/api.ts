@@ -2,15 +2,18 @@
 const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 async function req<T>(path: string, opts?: RequestInit): Promise<T> {
-    const res = await fetch(`${BASE}${path}`, {
-        ...opts,
-        headers: {
-            "Content-Type": "application/json",
-            ...(opts?.headers || {}),
-        },
-    });
-    if (!res.ok) throw new Error(`API ${res.status}: ${await res.text()}`);
-    return res.json();
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("sentinel_token") : null;
+  const res = await fetch(`${BASE}${path}`, {
+    ...opts,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(opts?.headers || {}),
+    },
+  });
+  if (!res.ok) throw new Error(`API ${res.status}: ${await res.text()}`);
+  return res.json();
 }
 
 export const api = {
@@ -85,7 +88,6 @@ export const api = {
     failures: (limit = 20) => req<any[]>(`/api/stats/failures?limit=${limit}`),
 
     system: () => req<SystemStats>("/api/system/stats"),
-
 };
 
 export type SystemStats = {

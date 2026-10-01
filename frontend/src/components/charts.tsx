@@ -9,14 +9,14 @@ export function LatencyBars({
   const data = results.slice(0, 40).reverse();
   const max = Math.max(...data.map((r) => r.latency_ms || 0), 1);
   if (data.length === 0)
-    return <p className="text-zinc-500 text-sm">No checks yet</p>;
+    return <p className="text-sm text-[#a8a29e]">No checks yet</p>;
   return (
-    <div className="flex items-end gap-1 h-24">
+    <div className="flex h-24 items-end gap-1">
       {data.map((r, i) => (
         <div
           key={i}
           title={`${r.latency_ms ?? "?"}ms`}
-          className={`flex-1 rounded-sm ${r.ok ? "bg-emerald-600" : "bg-red-600"}`}
+          className={`flex-1 rounded-sm ${r.ok ? "bg-emerald-600" : "bg-red-500"}`}
           style={{
             height: `${Math.max(6, ((r.latency_ms || 0) / max) * 100)}%`,
           }}
@@ -34,23 +34,23 @@ export function Heatmap({
 }) {
   const color = (p: number) =>
     p >= 99
-      ? "bg-emerald-500"
+      ? "bg-emerald-600"
       : p >= 95
-      ? "bg-emerald-800"
-      : p >= 90
-      ? "bg-yellow-600"
-      : p >= 50
-      ? "bg-orange-600"
-      : "bg-red-600";
+        ? "bg-emerald-400"
+        : p >= 90
+          ? "bg-amber-400"
+          : p >= 50
+            ? "bg-orange-400"
+            : "bg-red-500";
   if (days.length === 0)
-    return <p className="text-zinc-500 text-sm">No data yet</p>;
+    return <p className="text-sm text-[#a8a29e]">No data yet</p>;
   return (
-    <div className="flex gap-1 flex-wrap">
+    <div className="flex flex-wrap gap-1">
       {days.map((d) => (
         <div
           key={d.date}
           title={`${d.date}: ${d.uptime_pct}%`}
-          className={`w-4 h-4 rounded-sm ${color(d.uptime_pct)}`}
+          className={`h-4 w-4 rounded-sm ${color(d.uptime_pct)}`}
         />
       ))}
     </div>
@@ -70,31 +70,29 @@ export function Waterfall({
   };
 }) {
   const rows: [string, number, string][] = [
-    ["DNS lookup", phases.dns_ms, "bg-sky-500"],
-    ["TCP connect", phases.tcp_ms, "bg-violet-500"],
-    ["TLS handshake", phases.tls_ms, "bg-amber-500"],
-    ["Time to first byte", phases.ttfb_ms, "bg-emerald-500"],
+    ["DNS lookup", phases.dns_ms, "bg-sky-600"],
+    ["TCP connect", phases.tcp_ms, "bg-violet-600"],
+    ["TLS handshake", phases.tls_ms, "bg-amber-600"],
+    ["Time to first byte", phases.ttfb_ms, "bg-emerald-600"],
   ];
   const max = Math.max(phases.total_ms, 1);
   return (
     <div className="space-y-2">
       {rows.map(([label, ms, cls]) => (
         <div key={label} className="flex items-center gap-3">
-          <span className="w-36 text-sm text-zinc-400">{label}</span>
-          <div className="flex-1 h-5 bg-zinc-800 rounded">
+          <span className="w-36 text-sm text-[#78716c]">{label}</span>
+          <div className="h-5 flex-1 rounded bg-[#f5f0e8]">
             <div
               className={`h-5 rounded ${cls}`}
               style={{ width: `${Math.max(2, (ms / max) * 100)}%` }}
             />
           </div>
-          <span className="w-24 text-right text-sm font-mono">
-            {ms.toFixed(1)}ms
-          </span>
+          <span className="mono w-24 text-right text-sm">{ms.toFixed(1)}ms</span>
         </div>
       ))}
-      <div className="text-right text-sm text-zinc-400">
+      <div className="text-right text-sm text-[#78716c]">
         total{" "}
-        <span className="font-mono text-white">
+        <span className="mono font-medium text-[#1c1917]">
           {phases.total_ms.toFixed(1)}ms
         </span>
       </div>

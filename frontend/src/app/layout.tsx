@@ -1,10 +1,22 @@
 import type { Metadata } from "next";
+import { Inter, JetBrains_Mono, Newsreader } from "next/font/google";
 import "./globals.css";
-import { Navbar, Footer } from "../components/ui";
+import "./theme.css";
+import { AuthProvider } from "../lib/auth";
+import AppShell from "../components/AppShell";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
+const serif = Newsreader({
+  subsets: ["latin"],
+  variable: "--font-serif",
+  style: ["normal", "italic"],
+});
 
 export const metadata: Metadata = {
-  title: "API Sentinel",
-  description: "API monitoring, testing and network X-ray",
+  title: "API Sentinel — know before your users do",
+  description:
+    "Uptime monitoring, a request tester, network X-ray and Discord alerts for your APIs.",
 };
 
 export default function RootLayout({
@@ -13,13 +25,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col">
-        <Navbar />
-        <main className="max-w-6xl mx-auto px-4 py-8 w-full flex-1">
-          {children}
-        </main>
-        <Footer />
+    <html
+      lang="en"
+      className={`${inter.variable} ${mono.variable} ${serif.variable}`}
+    >
+      <body>
+        <AuthProvider>
+          <AppShell>{children}</AppShell>
+        </AuthProvider>
       </body>
     </html>
   );

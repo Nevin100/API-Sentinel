@@ -50,14 +50,20 @@ export default function TesterPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Request tester</h1>
+      <div>
+        <p className="eyebrow mb-2">Tools</p>
+        <h1 className="font-display text-3xl">Request tester</h1>
+        <p className="mt-1 text-sm text-[#78716c]">
+          Fire a request, read the response, replay from history.
+        </p>
+      </div>
 
       <Card>
-        <div className="flex gap-2 mb-3">
+        <div className="mb-3 flex gap-2">
           <select
             value={method}
             onChange={(e) => setMethod(e.target.value)}
-            className="bg-zinc-800 border border-zinc-700 rounded-md px-3 py-2 text-sm"
+            className="input mono shrink-0"
           >
             {METHODS.map((m) => (
               <option key={m}>{m}</option>
@@ -67,77 +73,73 @@ export default function TesterPage() {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://api.example.com/endpoint"
-            className={inputCls}
+            className={`${inputCls} mono`}
           />
-          <button onClick={send} disabled={loading || !url} className={btnCls + " shrink-0"}>
+          <button onClick={send} disabled={loading || !url} className={`${btnCls} shrink-0`}>
             {loading ? "Sending…" : "Send"}
           </button>
         </div>
-        <div className="grid md:grid-cols-2 gap-3">
+        <div className="grid gap-3 md:grid-cols-2">
           <div>
-            <label className="text-xs text-zinc-500">Headers (JSON)</label>
+            <label className="label">Headers (JSON)</label>
             <textarea
               value={headersText}
               onChange={(e) => setHeadersText(e.target.value)}
               rows={3}
-              className={inputCls + " font-mono"}
+              className={`${inputCls} mono`}
             />
           </div>
           <div>
-            <label className="text-xs text-zinc-500">Body</label>
+            <label className="label">Body</label>
             <textarea
               value={bodyText}
               onChange={(e) => setBodyText(e.target.value)}
               rows={3}
-              className={inputCls + " font-mono"}
+              className={`${inputCls} mono`}
             />
           </div>
         </div>
-        {error && <p className="text-red-400 text-sm mt-3">{error}</p>}
+        {error && <div className="error-box mt-3">{error}</div>}
       </Card>
 
       {resp && (
         <Card>
-          <div className="flex items-center gap-3 mb-3">
+          <div className="mb-3 flex items-center gap-3">
             <StatusBadge ok={resp.ok} />
-            <span className={`font-mono text-lg ${resp.ok ? "text-emerald-400" : "text-red-400"}`}>
+            <span className={`mono text-xl ${resp.ok ? "text-[#047857]" : "text-[#b91c1c]"}`}>
               {resp.status_code ?? "ERROR"}
             </span>
-            <span className="text-zinc-400 text-sm font-mono">{resp.latency_ms}ms</span>
-            <span className="text-zinc-400 text-sm font-mono">{resp.size_bytes} bytes</span>
+            <span className="mono text-sm text-[#78716c]">{resp.latency_ms}ms</span>
+            <span className="mono text-sm text-[#78716c]">{resp.size_bytes} bytes</span>
           </div>
-          {resp.error && <p className="text-red-400 text-sm mb-3">{resp.error}</p>}
+          {resp.error && <div className="error-box mb-3">{resp.error}</div>}
           <details className="mb-2">
-            <summary className="text-sm text-zinc-400 cursor-pointer">Headers</summary>
-            <pre className="text-xs bg-zinc-950 rounded p-3 mt-2 overflow-auto">
-              {JSON.stringify(resp.headers, null, 2)}
-            </pre>
+            <summary className="cursor-pointer text-sm text-[#78716c]">Headers</summary>
+            <pre className="pre-dark mt-2">{JSON.stringify(resp.headers, null, 2)}</pre>
           </details>
-          <div className="text-sm text-zinc-400 mb-1">Body</div>
-          <pre className="text-xs bg-zinc-950 rounded p-3 overflow-auto max-h-96">
-            {resp.body}
-          </pre>
+          <div className="label mt-3">Body</div>
+          <pre className="pre-dark max-h-96">{resp.body}</pre>
         </Card>
       )}
 
       <div>
-        <h2 className="text-lg font-semibold mb-3">Request log</h2>
+        <h2 className="mb-3 text-lg font-semibold">Request log</h2>
         <Card>
           <div className="text-sm">
-            <div className="grid grid-cols-5 gap-2 text-zinc-500 text-xs pb-2 border-b border-zinc-800">
+            <div className="grid grid-cols-5 gap-2 border-b border-[#e7e0d5] pb-2 text-xs text-[#a8a29e]">
               <span>Method</span><span className="col-span-2">URL</span><span>Status</span><span>Latency</span>
             </div>
             {logs.map((l: any) => (
-              <div key={l.id} className="grid grid-cols-5 gap-2 py-1.5 border-b border-zinc-800/50">
-                <span className="font-mono">{l.method}</span>
-                <span className="col-span-2 truncate text-zinc-400">{l.url}</span>
-                <span className={l.status_code && l.status_code < 400 ? "text-emerald-400" : "text-red-400"}>
+              <div key={l.id} className="grid grid-cols-5 gap-2 border-b border-[#f5f0e8] py-1.5 last:border-0">
+                <span className="mono">{l.method}</span>
+                <span className="col-span-2 truncate text-[#78716c]">{l.url}</span>
+                <span className={l.status_code && l.status_code < 400 ? "font-medium text-[#047857]" : "font-medium text-[#b91c1c]"}>
                   {l.status_code ?? "ERR"}
                 </span>
-                <span className="font-mono">{l.latency_ms?.toFixed(0)}ms</span>
+                <span className="mono">{l.latency_ms?.toFixed(0)}ms</span>
               </div>
             ))}
-            {logs.length === 0 && <p className="text-zinc-500 text-sm py-2">Koi request nahi bheji abhi.</p>}
+            {logs.length === 0 && <p className="py-2 text-sm text-[#a8a29e]">Koi request nahi bheji abhi.</p>}
           </div>
         </Card>
       </div>

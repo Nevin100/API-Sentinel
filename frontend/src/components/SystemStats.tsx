@@ -4,16 +4,17 @@ import { useEffect, useState } from "react";
 import { api, type SystemStats } from "../lib/api";
 
 function Meter({ label, pct, detail }: { label: string; pct: number; detail: string }) {
-  const color = pct > 85 ? "bg-red-500" : pct > 60 ? "bg-yellow-500" : "bg-emerald-500";
+  const color =
+    pct > 85 ? "bg-red-500" : pct > 60 ? "bg-amber-500" : "bg-emerald-600";
   return (
     <div>
-      <div className="flex justify-between text-xs text-zinc-400 mb-1">
+      <div className="mb-1 flex justify-between text-xs text-[#78716c]">
         <span>{label}</span>
-        <span>
+        <span className="mono">
           {pct.toFixed(0)}% · {detail}
         </span>
       </div>
-      <div className="h-2 rounded bg-zinc-800 overflow-hidden">
+      <div className="h-2 overflow-hidden rounded bg-[#f5f0e8]">
         <div
           className={`h-full rounded transition-all duration-500 ${color}`}
           style={{ width: `${Math.min(pct, 100)}%` }}
@@ -50,18 +51,18 @@ export function SystemStatsPanel() {
   if (!s) return null;
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-zinc-200">System · live</h3>
-        <span className="text-xs text-zinc-500">{s.cpu_count} cores</span>
+    <div className="panel panel-pad">
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="text-sm font-semibold">System · live</h3>
+        <span className="mono text-xs text-[#a8a29e]">{s.cpu_count} cores</span>
       </div>
 
       {/* CPU sparkline — last ~90 seconds */}
-      <div className="flex items-end gap-[2px] h-10 mb-4">
+      <div className="mb-4 flex h-10 items-end gap-[2px]">
         {hist.map((v, i) => (
           <div
             key={i}
-            className="flex-1 rounded-sm bg-emerald-500/70"
+            className="flex-1 rounded-sm bg-emerald-600/70"
             style={{ height: `${Math.max(v, 4)}%` }}
             title={`${v.toFixed(1)}%`}
           />

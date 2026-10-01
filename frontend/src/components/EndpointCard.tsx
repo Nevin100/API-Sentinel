@@ -6,20 +6,24 @@ import { Card, StatusBadge, timeAgo } from "./ui";
 export default function EndpointCard({ ep }: { ep: any }) {
   return (
     <Link href={`/endpoints/${ep.id}`}>
-      <Card className="hover:border-zinc-600 transition cursor-pointer">
-        <div className="flex items-center justify-between mb-2">
+      <Card className="cursor-pointer transition hover:border-[#a8a29e]">
+        <div className="mb-2 flex items-center justify-between">
           <span className="font-semibold">{ep.name}</span>
           <StatusBadge ok={ep.last_ok} />
         </div>
-        <div className="text-xs text-zinc-500 truncate mb-3">{ep.url}</div>
+        <div className="mb-3 truncate text-xs text-[#a8a29e]">{ep.url}</div>
         <div className="flex justify-between text-sm">
-          <span className="text-zinc-400">
+          <span className="text-[#78716c]">
             uptime 24h{" "}
-            <span className="text-white font-mono">{ep.uptime_24h_pct}%</span>
+            <span className="mono font-medium text-[#1c1917]">
+              {ep.uptime_24h_pct}%
+            </span>
           </span>
-          <span className="text-zinc-400">
-            <span className="text-white font-mono">
-              {ep.last_latency_ms != null ? `${ep.last_latency_ms.toFixed(0)}ms` : "—"}
+          <span className="text-[#78716c]">
+            <span className="mono font-medium text-[#1c1917]">
+              {ep.last_latency_ms != null
+                ? `${ep.last_latency_ms.toFixed(0)}ms`
+                : "—"}
             </span>{" "}
             · {timeAgo(ep.last_checked_at)}
           </span>

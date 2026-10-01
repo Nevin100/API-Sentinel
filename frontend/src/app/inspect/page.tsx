@@ -27,59 +27,65 @@ export default function InspectPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Deep Inspect <span className="text-zinc-500 text-base font-normal">— network X-ray</span></h1>
+      <div>
+        <p className="eyebrow mb-2">Network X-ray</p>
+        <h1 className="font-display text-3xl">Deep Inspect</h1>
+        <p className="mt-1 text-sm text-[#78716c]">
+          Paste a URL — see DNS, TCP, TLS and TTFB in a waterfall.
+        </p>
+      </div>
 
       <Card>
         <div className="flex gap-2">
-          <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" className={inputCls} />
-          <button onClick={inspect} disabled={loading || !url} className={btnCls + " shrink-0"}>
+          <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" className={`${inputCls} mono`} />
+          <button onClick={inspect} disabled={loading || !url} className={`${btnCls} shrink-0`}>
             {loading ? "Inspecting…" : "Inspect"}
           </button>
         </div>
-        {error && <p className="text-red-400 text-sm mt-3">{error}</p>}
+        {error && <div className="error-box mt-3">{error}</div>}
       </Card>
 
       {data && (
         <>
           <Card>
-            <div className="flex items-center gap-3 mb-4">
+            <div className="mb-4 flex items-center gap-3">
               <StatusBadge ok={data.http?.ok} />
-              <span className="font-mono text-lg">{data.http?.status_code ?? "—"}</span>
-              <span className="text-zinc-400 text-sm font-mono">total {data.timing?.total_ms}ms</span>
+              <span className="mono text-xl">{data.http?.status_code ?? "—"}</span>
+              <span className="mono text-sm text-[#78716c]">total {data.timing?.total_ms}ms</span>
             </div>
             {wf?.ok ? (
               <Waterfall phases={wf.phases} />
             ) : (
-              <p className="text-red-400 text-sm">Waterfall failed: {wf?.error}</p>
+              <div className="error-box">Waterfall failed: {wf?.error}</div>
             )}
           </Card>
 
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid gap-4 md:grid-cols-2">
             <Card>
-              <h3 className="font-semibold mb-2">DNS</h3>
+              <h3 className="mb-2 font-semibold">DNS</h3>
               {data.dns?.ok ? (
                 <>
-                  <div className="text-sm font-mono">{data.dns.ips.join(", ")}</div>
-                  <div className="text-xs text-zinc-500 mt-1">lookup {data.dns.lookup_ms}ms</div>
+                  <div className="mono text-sm">{data.dns.ips.join(", ")}</div>
+                  <div className="mt-1 text-xs text-[#a8a29e]">lookup {data.dns.lookup_ms}ms</div>
                 </>
               ) : (
-                <p className="text-red-400 text-sm">{data.dns?.error}</p>
+                <div className="error-box">{data.dns?.error}</div>
               )}
             </Card>
             <Card>
-              <h3 className="font-semibold mb-2">SSL / TLS</h3>
+              <h3 className="mb-2 font-semibold">SSL / TLS</h3>
               {data.ssl ? (
                 data.ssl.ok ? (
-                  <div className="text-sm space-y-1">
-                    <div><span className="text-zinc-500">TLS:</span> <span className="font-mono">{data.ssl.tls_version}</span></div>
-                    <div><span className="text-zinc-500">Cipher:</span> <span className="font-mono">{data.ssl.cipher}</span></div>
-                    <div><span className="text-zinc-500">Valid till:</span> <span className="font-mono">{data.ssl.not_after}</span></div>
+                  <div className="space-y-1 text-sm">
+                    <div><span className="text-[#a8a29e]">TLS:</span> <span className="mono">{data.ssl.tls_version}</span></div>
+                    <div><span className="text-[#a8a29e]">Cipher:</span> <span className="mono">{data.ssl.cipher}</span></div>
+                    <div><span className="text-[#a8a29e]">Valid till:</span> <span className="mono">{data.ssl.not_after}</span></div>
                   </div>
                 ) : (
-                  <p className="text-red-400 text-sm">{data.ssl.error}</p>
+                  <div className="error-box">{data.ssl.error}</div>
                 )
               ) : (
-                <p className="text-zinc-500 text-sm">HTTP URL — no TLS.</p>
+                <p className="text-sm text-[#a8a29e]">HTTP URL — no TLS.</p>
               )}
             </Card>
           </div>
