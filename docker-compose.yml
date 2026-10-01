@@ -7,20 +7,59 @@ services:
       POSTGRES_DB: sentinel
     volumes:
       - pgdata:/var/lib/postgresql/data
-    ports: ["5432:5432"]
+    ports:
+      - "5432:5432"
+
   redis:
     image: redis:7-alpine
-    ports: ["6379:6379"]
-  
+    ports:
+      - "6379:6379"
+
   backend:
     build: ./backend
     env_file: .env
-    ports: ["8000:8000"]
-    depends_on: [postgres, redis]
-  
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+
   frontend:
     build: ./frontend
-    ports: ["3000:3000"]
-    depends_on: [backend]
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  prometheus:
+    image: prom/prometheus:v2.52.0
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9190:9090"
+
+  grafana:
+    image: grafana/grafana:10.4.3
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    depends_on:
+      - prometheus
+
+  # Custom exporter: per-container CPU % + memory -> Prometheus.
+  # (cAdvisor hataya: Docker Desktop ke containerd snapshotter ke saath
+  #  uske per-container metrics toot jaate hain.)
+  docker-exporter:
+    build: ./exporter
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - "9115:9101"
+
 volumes:
   pgdata:

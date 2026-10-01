@@ -1,0 +1,22 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # API Sentinel backend (/metrics).
+  # host.docker.internal = teri Windows machine, jahan uvicorn local chal raha hai.
+  # Agar backend bhi compose me chal raha ho, toh bhi ye kaam karega (port 8000 published hai).
+  - job_name: "api-sentinel"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["host.docker.internal:8000"]
+
+  # Custom exporter — har docker container ka CPU % / memory.
+  - job_name: "docker-exporter"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["docker-exporter:9101"]
