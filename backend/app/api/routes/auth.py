@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.db.session import get_db
 from app.models.user import User
 from app.services import auth as auth_svc
@@ -31,6 +33,21 @@ def _out(u: User) -> dict:
     }
 
 
+def _authed_response(user_out: dict, token: str) -> JSONResponse:
+    """Token goes into an httpOnly cookie — JS can never read it."""
+    resp = JSONResponse({"user": user_out})
+    resp.set_cookie(
+        key=settings.cookie_name,
+        value=token,
+        max_age=settings.jwt_expire_days * 86400,
+        httponly=True,
+        samesite=settings.cookie_samesite,
+        secure=settings.cookie_secure,
+        path="/",
+    )
+    return resp
+
+
 @router.post("/signup")
 def signup(payload: SignupIn, db: Session = Depends(get_db)):
     name = payload.name.strip()
@@ -48,7 +65,7 @@ def signup(payload: SignupIn, db: Session = Depends(get_db)):
     db.add(u)
     db.commit()
     db.refresh(u)
-    return {"token": auth_svc.create_token(u.id), "user": _out(u)}
+    return _authed_response(_out(u), auth_svc.create_token(u.id))
 
 
 @router.post("/login")
@@ -58,19 +75,29 @@ def login(payload: LoginIn, db: Session = Depends(get_db)):
         raise HTTPException(
             status.HTTP_401_UNAUTHORIZED, "Invalid email or password"
         )
-    return {"token": auth_svc.create_token(u.id), "user": _out(u)}
+    return _authed_response(_out(u), auth_svc.create_token(u.id))
+
+
+@router.post("/logout")
+def logout():
+    resp = JSONResponse({"ok": True})
+    resp.delete_cookie(key=settings.cookie_name, path="/")
+    return resp
 
 
 def get_current_user(
+    request: Request,
     creds: HTTPAuthorizationCredentials = Depends(bearer),
     db: Session = Depends(get_db),
 ) -> User:
-    if creds is None or creds.scheme.lower() != "bearer":
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Not authenticated")
-    uid = auth_svc.decode_token(creds.credentials)
+    # Cookie first (browser flow); Bearer fallback (scripts/API clients)
+    token = request.cookies.get(settings.cookie_name)
+    if not token and creds is not None and creds.scheme.lower() == "bearer":
+        token = creds.credentials
+    uid = auth_svc.decode_token(token) if token else None
     u = db.query(User).get(uid) if uid else None
     if u is None:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid token")
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Not authenticated")
     return u
 
 

@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Request
 from fastapi.responses import PlainTextResponse
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 from app.core.config import settings
@@ -21,13 +21,22 @@ app = FastAPI(title="API Sentinel", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=settings.cors_origin_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Auth routes are public; everything under /api/* needs a Bearer token.
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    resp = await call_next(request)
+    resp.headers["X-Content-Type-Options"] = "nosniff"
+    resp.headers["X-Frame-Options"] = "DENY"
+    resp.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return resp
+
+# Auth routes are public; everything under /api/* needs auth (cookie or Bearer).
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 
 authed = [Depends(get_current_user)]
@@ -41,6 +50,7 @@ app.include_router(system.router, prefix="/api/system", tags=["system"], depende
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
 
 @app.get("/metrics")
 def metrics():
