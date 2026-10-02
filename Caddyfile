@@ -1,0 +1,3 @@
+api.nevinbali.me {
+	reverse_proxy backend:8000
+}

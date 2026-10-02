@@ -1,0 +1,38 @@
+# Production overlay — Oracle Cloud VM.
+# Repo root me rakho: docker-compose.prod.yml
+#
+# Usage (VM pe):
+#   export GRAFANA_PASSWORD='<strong-password>'
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build postgres redis backend prometheus grafana docker-exporter caddy
+#
+# Note: frontend isme nahi hai — woh Vercel pe chalega.
+
+services:
+  prometheus:
+    # Linux pe host.docker.internal resolve nahi hota (sirf Docker Desktop pe hota hai).
+    # Isse prometheus.yml wala "host.docker.internal:8000" target VM pe bhi kaam karega.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  grafana:
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      # :? ka matlab — agar GRAFANA_PASSWORD set nahi hai toh compose turant ruk jayega.
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:?GRAFANA_PASSWORD env var set karo}
+
+  # Caddy — api.nevinbali.me ke liye automatic HTTPS (Let's Encrypt).
+  # Cloudflare proxy (orange cloud) ON rakhna — WAF + DDoS protection usse milega.
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:
