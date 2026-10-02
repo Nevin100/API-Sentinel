@@ -222,3 +222,30 @@ select.input {
   border: 1px solid var(--border);
   border-radius: 16px;
 }
+
+/* Aliases — signup/login pages use -light names */
+.input-light {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.9rem;
+  color: var(--ink);
+  transition: border-color 0.15s ease;
+}
+.input-light::placeholder {
+  color: #b8b0a3;
+}
+.input-light:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.label-light {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
