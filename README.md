@@ -2,6 +2,8 @@
 
 **Monitor, test, and X-ray your APIs — from one dashboard.**
 
+<img width="1364" height="689" alt="image" src="https://github.com/user-attachments/assets/fb3e80f7-e81c-4e35-86cb-f8fca4051c93" />
+
 API Sentinel is a full-stack API monitoring and debugging platform: uptime checks, a Postman-lite request tester, deep network inspection (DNS → TCP → TLS → TTFB waterfall), collections with environments, Discord downtime alerts, live system stats, and Prometheus metrics.
 
 > Summer project — FastAPI + Next.js + PostgreSQL + Redis, containerized with Docker.
