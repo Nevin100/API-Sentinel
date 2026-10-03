@@ -229,7 +229,7 @@ export default function Landing() {
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 text-sm text-[#a8a29e] md:flex-row md:items-center md:justify-between md:px-8">
           <p>
             <span className="font-medium text-[#57534e]">API Sentinel</span> — a summer
-            training project by Nevin Bali.
+            training project by Nevin Bali (08615002723) & Ayush Tomer (10715002723).
           </p>
           <p className="flex gap-5">
             <a href="https://github.com/Nevin100" className="hover:text-[#1c1917]">GitHub</a>
